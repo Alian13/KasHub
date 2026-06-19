@@ -39,7 +39,7 @@ const routes = [
         path: 'transaksi',
         name: 'Transaksi',
         component: () => import('@/views/TransaksiView.vue'),
-        meta: { roles: ['admin'] }
+        meta: { roles: ['pemilik', 'admin'] }
       },
       {
         path: 'laporan',

@@ -44,6 +44,96 @@
       </div>
     </div>
 
+    <!-- Input Form Pemasukan/Pengeluaran -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-800">Tambah Transaksi</h3>
+        <button
+          @click="toggleForm"
+          :class="['px-4 py-2 rounded-lg font-medium transition-colors', showInputForm ? 'bg-slate-200 text-slate-800' : 'bg-indigo-600 hover:bg-indigo-700 text-white']"
+        >
+          {{ showInputForm ? '✕ Tutup' : '➕ Buka Form' }}
+        </button>
+      </div>
+
+      <div v-if="showInputForm" class="border-t pt-6">
+        <form @submit.prevent="saveTransaction" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Tipe Transaksi *</label>
+              <select
+                v-model="formTransaction.tipe"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
+                <option value="">Pilih Tipe</option>
+                <option value="pemasukan">Pemasukan</option>
+                <option value="pengeluaran">Pengeluaran</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Kategori *</label>
+              <input
+                v-model="formTransaction.kategori"
+                type="text"
+                placeholder="Contoh: Penjualan Produk"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Nominal *</label>
+              <input
+                v-model.number="formTransaction.nominal"
+                type="number"
+                placeholder="0"
+                min="0"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal *</label>
+              <input
+                v-model="formTransaction.tanggal"
+                type="date"
+                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Keterangan</label>
+            <textarea
+              v-model="formTransaction.keterangan"
+              placeholder="Catatan transaksi..."
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-20"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3 pt-4 border-t">
+            <button
+              type="button"
+              @click="resetForm"
+              class="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium"
+            >
+              Simpan Transaksi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Transaksi Detail -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
       <h3 class="text-lg font-bold text-slate-800 mb-4">Rincian Transaksi</h3>
@@ -154,15 +244,60 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useStokStore } from '@/stores/stok'
 import { useTransaksiStore } from '@/stores/transaksi'
+import { useNotificationStore } from '@/stores/notification'
 import { formatRupiah, formatTanggal } from '@/utils/helpers'
 import { jsPDF } from 'jspdf'
 
 const stokStore = useStokStore()
 const transaksiStore = useTransaksiStore()
+const notificationStore = useNotificationStore()
 const isDownloading = ref(false)
+const showInputForm = ref(false)
+
+const formTransaction = reactive({
+  tipe: '',
+  kategori: '',
+  nominal: 0,
+  keterangan: '',
+  tanggal: new Date().toISOString().split('T')[0]
+})
+
+function toggleForm() {
+  showInputForm.value = !showInputForm.value
+  if (!showInputForm.value) {
+    resetForm()
+  }
+}
+
+function resetForm() {
+  formTransaction.tipe = ''
+  formTransaction.kategori = ''
+  formTransaction.nominal = 0
+  formTransaction.keterangan = ''
+  formTransaction.tanggal = new Date().toISOString().split('T')[0]
+}
+
+function saveTransaction() {
+  if (!formTransaction.tipe || !formTransaction.kategori.trim() || formTransaction.nominal <= 0) {
+    notificationStore.error('Lengkapi semua field dengan benar!')
+    return
+  }
+  
+  transaksiStore.tambahTransaksi({
+    tipe: formTransaction.tipe,
+    kategori: formTransaction.kategori,
+    nominal: formTransaction.nominal,
+    keterangan: formTransaction.keterangan,
+    tanggal: formTransaction.tanggal
+  })
+  
+  notificationStore.success('Transaksi berhasil ditambahkan')
+  resetForm()
+  showInputForm.value = false
+}
 
 // Fungsi untuk membuat tabel di PDF
 const createTable = (pdf, columns, data, startY, options = {}) => {

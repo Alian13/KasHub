@@ -180,7 +180,7 @@ const menuNav = computed(() => {
       roles: ['pemilik', 'admin'],
       badge: stokStore.stokKritis.length || null
     },
-    { to: '/transaksi',  label: 'Transaksi',   icon: '💸', roles: ['admin'] },
+    { to: '/transaksi',  label: 'Transaksi',   icon: '💸', roles: ['pemilik', 'admin'] },
     { to: '/laporan',    label: 'Laporan',      icon: '📋', roles: ['pemilik', 'admin'] },
     { to: '/profil',     label: 'Profil',       icon: '👤', roles: ['pemilik', 'admin'] },
   ]

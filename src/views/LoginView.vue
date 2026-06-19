@@ -98,11 +98,11 @@
         </RouterLink>
 
         <!-- Demo Info -->
-        <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-          <p class="font-semibold mb-2">📝 Demo Login:</p>
-          <p class="text-xs mb-2">📧 admin@umkm.com | 🔐 password123</p>
-          <p class="text-xs">📧 pemilik@umkm.com | 🔐 password123</p>
-        </div>
+        <!-- <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          <p class="font-semibold mb-2">Demo Login:</p> -->
+          <!-- <p class="text-xs mb-2">📧 admin@umkm.com | 🔐 password123</p> -->
+          <!-- <p class="text-xs">pemilik@umkm.com | password123</p>
+        </div> -->
       </div>
     </div>
   </div>
